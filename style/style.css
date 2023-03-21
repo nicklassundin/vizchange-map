@@ -1,13 +1,14 @@
-#map
-{
+body {
+    margin: 0;
+}
+#map {
     width: auto;
-    height: 95vh;
+    height: 100vh;
 }
 
 .landskap, .kommun {
     fill-opacity: 0;
     stroke: rgb(10, 10, 10);
-    transition-duration: .5s;
 }
 .landskap {
     stroke-width: 3;
@@ -19,7 +20,7 @@
 path {
     stroke-dasharray: 10000;
     stroke-dashoffset: 0;
-    animation: dash 10s linear alternate 1;
+    animation: dash 5s ease-in alternate 1;
 }
 
 @keyframes dash {
@@ -44,16 +45,10 @@ path {
 
 }
 
-.icon {
-    height: 7px!important;
-    width: 7px!important;
-    background-color: darkred;
-    border-radius: 50%;
-    display: inline-block;
+.label {
+    border: none;
+    background: none;
+    box-shadow: none;
 }
-.leaflet-marker-icon, leaflet-marker-shadow * {
-    /*
-    visibility: hidden;
-    opacity: 0
-     */
-}
+
+

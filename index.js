@@ -2,13 +2,14 @@
 
 
 
+let lib = require('vizchange-plot-builder')
+
 // Initialize leaflet.js
 let L = require('leaflet');
 
 // Initialize the map
 let map = L.map('map', {
    dragging: false,
-    minZoom: 5,
     maxZoom: 10,
     scrollWheelZoom: false,
 });
@@ -18,9 +19,6 @@ let landskap = require('./geojson/lan.json')
 
 //layerControl = L.control.layers({}, null, { collapsed: false }).addTo(map);
 
-//layerControl.hide
-// Set the position and zoom level of the map
-map.setView([63, 16], 5);
 
 let size = 2
 let greenIcon = L.icon({
@@ -39,16 +37,25 @@ let greenIcon = L.icon({
 
 
 // Zoom feature
-function zoomToFeature(e) {
+function zoomToFeature(e, zoom) {
     let bounds = e.target.getBounds();
+    $(`.plotArea`).removeClass('active')
+    $(`#plotField`).removeClass('show')
     map.fitBounds(bounds);
+    /*
+    if(zoom){
+        zoomLevel = map.getZoom()
+    }else{
+        zoomLevel = 10
+    }
+     */
 }
 function onEachFeature(feature, layer) {
     layer.on({
         click: (e) => {
             let kod = feature.properties.LnKod
-            addKommuns(Number(feature.properties.LnKod))
-            return zoomToFeature(e)
+            zoomToFeature(e, isNaN(Number(feature.properties.LnKod)))
+            addKommuns(Number(feature.properties.LnKod));
         },
         dblclick: (e) => {
             /*
@@ -66,6 +73,7 @@ function addKommuns(currentLan) {
     if(kommun_layer !== undefined && currentLan){
         kommun_layer.clearLayers();
     }
+
     kommun_layer = L.geoJSON(kommuner, {
         onEachFeature: onEachFeature,
         style: (feature) => {
@@ -103,18 +111,72 @@ map.fitBounds(land_layer.getBounds(), {
 
 let {stations} = require('vizchange-smhi');
 stations = stations.getStations();
+let markers = new L.FeatureGroup();
 stations.then(result => {
-    result.forEach((points) => {
-        console.log(points)
-        let icon = L.divIcon({className: 'icon'});
+    result.filter(each => each.formatedName === "Falsterbo").forEach((points) => {
+        let icon = L.divIcon({
+            html: `<a class="icon" id="${points.id}">
+<div class="icon-content"></div><options id="station-${points.id}"
+data-longitude=${points.longitude} 
+data-latitude=${points.latitude} 
+data-station="${points.id}" 
+data-name="${points.formatedName}"
+data-set="annualTemperatures" 
+<!-- data-hosturl="https://acp.k8s.glimworks.se" -->
+data-hosturl="http://vizchange.hopto.org">
+
+</options><a>`,
+            className: 'icon-container',
+            childId: points.id,
+            configId: `#station-${points.id}`
+        });
         let latLng = L.latLng(points.latitude, points.longitude)
         let marker = L.marker(latLng, {
             icon: icon,
         })
+
+        marker.on('click', (event) => {
+            $(`.plotArea`).removeClass('active')
+            map.flyTo(event.target['_latlng'])
+            $(`.plotArea`).toggleClass('active')
+
+            $(`#plotField`).removeClass('show')
+            $(`#plotField`).toggleClass('show')
+
+            $('#plotConfig').attr('data-longitude', points.longitude)
+            $('#plotConfig').attr('data-latitude', points.latitude)
+
+            console.log(event.target.options.icon.options)
+            let configId = event.target.options.icon.options.configId;
+            lib.renderFromData("mark", configId)
+        })
         marker.bindPopup(`<b>${points.formatedName}</b><br>${points.params}`)
-        marker.addTo(map);
+        marker.on('mouseover', function (e) {
+            this.openPopup();
+        });
+        marker.on('mouseout', function (e) {
+            this.closePopup();
+        });
+        /*
+        marker.bindTooltip(`${points.formatedName}`, {permanent: true, className: "label"})
+         */
+        markers.addLayer(marker)
     })
 })
+map.addLayer(markers)
+let zoomLevel = 10
+/*
+map.on('zoomend', function() {
+
+    if (map.getZoom() <= zoomLevel) {
+        map.removeLayer(markers);
+        zoomLevel = 10;
+    } else {
+        map.addLayer(markers);
+    }
+});
+
+ */
 
 
 

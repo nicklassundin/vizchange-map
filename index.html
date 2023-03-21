@@ -1,15 +1,42 @@
-<!doctype html>
-<html>
+<!-- extends default--><!DOCTYPE html>
+<html lang="en">
 <head>
-    <title>My first Leaflet example</title>
+    <title>Visualizing Change Map</title>
     <meta charset="utf-8">
+    <script src=""></script>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <!--<link rel="stylesheet" href="node_modules/leaflet/dist/leaflet.css">-->
     <link rel="stylesheet" href="style/leaflet.css">
     <link rel="stylesheet" href="style/style.css">
+    <link rel="stylesheet" href="style/marker.css">
+    <link rel="stylesheet" href="style/plotarea.css">
+    <!-- TODO plots -->
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+    <!--
+    <script src="https://staging-devop-deploy-abisko-climate.k8s.glimworks.se/client/bundle.js"></script>
+<script src="https://nicklassundin.github.io/abisko-climate-plots/client/bundle.js"></script>
+    -->
+
+    <!--
+    <link rel="stylesheet" type="text/css" href="https://nicklassundin.github.io/abisko-climate-plots/css/styles.css">
+    -->
+    <link rel="stylesheet" type="text/css" href="https://nicklassundin.github.io/abisko-climate-plots/css/highcharts.css">
+    <link rel="stylesheet" type="text/css" href="https://nicklassundin.github.io/abisko-climate-plots/css/series.css">
+    <link rel="stylesheet" type="text/css" href="https://nicklassundin.github.io/abisko-climate-plots/css/custom-highcharts.css">
+
 </head>
 <body>
-<div id="map"></div>
-<script src="bundle.js"></script>
+<filter id="filter" height="2" width="2">
+    <feTurbulence baseFrequency="0.2" numOctaves="3" type="fractalNoise" />
+    <feDisplacementMap  scale="80"  xChannelSelector="R" in="SourceGraphic" />
+    <div id="map"></div>
+</filter>
+<div class="plotArea icon">
+    <option href="#" id="set" value="52230"></option>
+</div>
+<div id="plotField" class="plotField">
+    <div id="mark"></div>
+</div>
 </body>
+    <script src="bundle.js"></script>
 </html>
